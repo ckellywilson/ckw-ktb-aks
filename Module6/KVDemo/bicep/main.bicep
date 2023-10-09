@@ -1,39 +1,29 @@
 targetScope = 'subscription'
 
+@description('Resource Group Name')
+param rgName string = ''
+@description('AKS Cluster Name')
+param aksClusterName string = ''
 @description('The Azure Region in which all resources in this example should be created.')
 param location string = ''
-
 @description('The ssh public key rsa string to use for authentication')
 param sshPublicKey string = ''
+@description('RoleDefinitionId for the \'Azure Kubernetes Service Cluster User Role\' role')
+param aksClusterUserRoleId string = ''
+@description('AAD Group Id for \'appdev\' group')
+param appDevGroupId string = ''
+@description('AAD Group Id for \'opssre\' group')
+param opsSREGroupId string = ''
+
 
 @description('The username for the Linux VMs')
 var linuxAdminUsername = 'ktbaksmodule6user'
 
 @description('Create resource group')
 resource rg 'Microsoft.Resources/resourceGroups@2020-06-01' = {
-  name: 'ktb-aks-module6-rg'
+  name: rgName
   location: location
 }
-
-@description('Create the AAD Group appdev')
-module aad_group_appdev 'aad_group.bicep' = {
-  scope: rg
-  name: 'aad_group_appdev'
-  params: {
-    name: 'appdev'
-    location: location
-  }
-}  
-
-@description('Create the AAD Group opssre')
-module aad_group_opssre 'aad_group.bicep' = {
-  scope: rg
-  name: 'aad_group_opssre'
-  params: {
-    name: 'opssre'
-    location: location
-  }
-} 
 
 @description('Create the ssh key')
 module sshKey 'sshKey.bicep' = {
@@ -53,5 +43,28 @@ module aks'aks.bicep' = {
     location: location
     linuxAdminUsername: linuxAdminUsername
     sshRSAPublicKey: sshKey.outputs.sshKey
+    aksClusterName: aksClusterName
+  }
+}
+
+@description('Assign the \'Azure Kubernetes Service Cluster User Role\' role to the \'appdev\' group')
+module appdevRoleAssignment 'aks_role_assignment.bicep' = {
+  scope: rg
+  name: 'appdevRoleAssignment'
+  params: {
+    roleDefinitionID: aksClusterUserRoleId
+    principalId: appDevGroupId
+    aksId: aks.outputs.aksid
+  }
+}
+
+@description('Assign the \'Azure Kubernetes Service Cluster User Role\' role to the \'opssre\' group')
+module opssreRoleAssignment 'aks_role_assignment.bicep' = {
+  scope: rg
+  name: 'opssreRoleAssignment'
+  params: {
+    roleDefinitionID: aksClusterUserRoleId
+    principalId: opsSREGroupId
+    aksId: aks.outputs.aksid
   }
 }

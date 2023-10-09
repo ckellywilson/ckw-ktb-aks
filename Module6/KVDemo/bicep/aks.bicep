@@ -9,7 +9,7 @@ param sshRSAPublicKey string = ''
 param linuxAdminUsername string  = 'ktb-aks-module6-kv-cluster-admin'
 
 @description('The name of the Managed Cluster resource.')
-var clusterName = 'ktb-aks-module6-kv-cluster'
+param aksClusterName string = ''
 
 @description('Optional DNS prefix to use with hosted Kubernetes API server FQDN.')
 var dnsPrefix = 'ktb-aks-module6'
@@ -24,7 +24,7 @@ var agentCount = 1
 var agentVMSize  = 'standard_d2s_v3'
 
 resource aks 'Microsoft.ContainerService/managedClusters@2023-08-01' = {
-  name: clusterName
+  name: aksClusterName
   location: location
   identity: {
     type: 'SystemAssigned'

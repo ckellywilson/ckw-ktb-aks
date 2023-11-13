@@ -1,7 +1,7 @@
 # variables
 
 region="eastus"
-domain="ckwilson4gmail.onmicrosoft.com"
+domain="MngEnvMCAP027631.onmicrosoft.com"
 RG_NAME="ktb-aks-module6-rg"
 AKS_CLUSTER_NAME="ktb-aks-module6"
 deployment_name="ktb-aks-module6-deployment"

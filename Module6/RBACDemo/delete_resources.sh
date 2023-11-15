@@ -1,7 +1,7 @@
 # variables
 region="eastus"
-domain="ckwilson4gmail.onmicrosoft.com"
-RG_NAME="ktb-aks-module6-rg"
+domain="MngEnvMCAP027631.onmicrosoft.com"
+resource_prefix="ktb-aks-module6-rbac"
 AKS_CLUSTER_NAME="ktb-aks-module6"
 deployment_name="ktb-aks-module6-deployment"
 
@@ -13,13 +13,9 @@ echo ""
 # Navigate to Azure Portal
 echo "Navigate to Azure Portal where you will create the resources..."
 
-# Retrieve tenant ID
-echo "Copy the tenant ID from the Azure Portal and paste it here:" & read TENANT_ID
-echo "Tenant ID: $TENANT_ID"
-
 # Login to Azure
 echo "Login to Azure..."
-az login --tenant $TENANT_ID
+az login --use-device-code
 
 # Get Subscription
 echo "Get SubscriptionID from the displayed JSON and paste here:" & read SUBSCRIPTION_ID
@@ -71,7 +67,7 @@ echo "Deployment Subscription 'main' deleted"
 
 # Delete Resource Groups
 echo "Delete Resource Groups..."
-for rg in $(az group list --query "[].name" -o tsv); 
+for rg in $(az group list --query "[?contains(name,'$resource_prefix')].name" -o tsv); 
 do 
     echo 'Deleting ' $rg '...'; 
     az group delete --name $rg --yes; 

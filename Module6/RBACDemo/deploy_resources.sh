@@ -2,9 +2,10 @@
 
 region="eastus"
 domain="MngEnvMCAP027631.onmicrosoft.com"
-RG_NAME="ktb-aks-module6-rg"
-AKS_CLUSTER_NAME="ktb-aks-module6"
-deployment_name="ktb-aks-module6-deployment"
+resource_prefix="ktb-aks-module6-rbac"
+RG_NAME=$resource_prefix"-rg"
+AKS_CLUSTER_NAME=$resource_prefix"-aks"
+deployment_name=$resource_prefix"-deployment"
 
 
 ############################################# SSH Keys and Login #############################################
@@ -20,13 +21,9 @@ sshPublicKey=$(cat ~/.ssh/id_rsa.pub)
 # Navigate to Azure Portal
 echo "Navigate to Azure Portal where you will create the resources..."
 
-# Retrieve tenant ID
-echo "Copy the tenant ID from the Azure Portal and paste it here:" & read TENANT_ID
-echo "Tenant ID: $TENANT_ID"
-
 # Login to Azure
 echo "Login to Azure..."
-az login --tenant $TENANT_ID
+az login --use-device-code
 
 # Get Subscription
 echo "Get SubscriptionID from the displayed JSON and paste here:" & read SUBSCRIPTION_ID

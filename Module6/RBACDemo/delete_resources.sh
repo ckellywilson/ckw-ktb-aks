@@ -1,6 +1,6 @@
 # variables
 region="eastus"
-domain="MngEnvMCAP027631.onmicrosoft.com"
+domain="<your-domain>"
 resource_prefix="ktb-aks-module6-rbac"
 AKS_CLUSTER_NAME="ktb-aks-module6"
 deployment_name="ktb-aks-module6-deployment"

@@ -11,6 +11,9 @@ param linuxAdminUsername string  = 'ktb-aks-module6-kv-cluster-admin'
 @description('The name of the Managed Cluster resource.')
 param aksClusterName string = ''
 
+@description('The object IDs of the Azure AD groups that will have admin access to the cluster.')
+param adminGroupObjectIDs array = []
+
 @description('Optional DNS prefix to use with hosted Kubernetes API server FQDN.')
 var dnsPrefix = 'ktb-aks-module6'
 
@@ -40,6 +43,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2023-08-01' = {
       managed: true
       // This will ensure that the cluster uses Azure AD for authentication with Kubernetes RBAC
       enableAzureRBAC: false
+      adminGroupObjectIDs: adminGroupObjectIDs
     }
     agentPoolProfiles: [
       {

@@ -14,7 +14,8 @@ param aksClusterUserRoleId string = ''
 param appDevGroupId string = ''
 @description('AAD Group Id for \'opssre\' group')
 param opsSREGroupId string = ''
-
+@description('AAD Group Id for \'RBAC Admin\' group')
+param mod6RBACAdminGroupId string = ''
 
 @description('The username for the Linux VMs')
 var linuxAdminUsername = 'ktbaksmodule6user'
@@ -36,7 +37,7 @@ module sshKey 'sshKey.bicep' = {
 }
 
 @description('Create the AKS Cluster')
-module aks'aks.bicep' = {
+module aks 'aks.bicep' = {
   scope: rg
   name: 'aks'
   params: {
@@ -44,6 +45,7 @@ module aks'aks.bicep' = {
     linuxAdminUsername: linuxAdminUsername
     sshRSAPublicKey: sshKey.outputs.sshKey
     aksClusterName: aksClusterName
+    adminGroupObjectIDs: [mod6RBACAdminGroupId]
   }
 }
 

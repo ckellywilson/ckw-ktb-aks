@@ -1,7 +1,7 @@
 # variables
 
 region="eastus"
-domain="<your-domain>"
+domain=""
 resource_prefix="ktb-aks-module6-rbac"
 RG_NAME=$resource_prefix"-rg"
 AKS_CLUSTER_NAME=$resource_prefix"-aks"
@@ -34,15 +34,44 @@ echo "Set Account..."
 az account set --subscription $SUBSCRIPTION_ID
 echo "Account set to $SUBSCRIPTION_ID"
 
-# Get Current User Group ID
-echo "Get Current User Group ID by entering the name of a group for which you are a member here:" & read CURRENT_USER_GROUP_NAME
-echo "Current User Group Name: $CURRENT_USER_GROUP_NAME"
-CURRENT_USER_GROUP_ID=$(az ad group show --group "$CURRENT_USER_GROUP_NAME" --query 'id' --output tsv)
-echo "Current User Group ID: $CURRENT_USER_GROUP_ID"
+############################################# GET Logged-in User #############################################
+# Get Logged-in User UPN
+echo "Get Logged-in User UPN..."
+LOGGED_IN_UPN=$(az ad signed-in-user show --query userPrincipalName --output tsv)
+echo "Logged in UPN: $LOGGED_IN_UPN"
+echo "Set domain to the domain of the logged-in user"
+domain=${LOGGED_IN_UPN#*@}
+echo "Current domain: $domain"
+
+# Get Logged-in User ID
+echo "Get Logged-in User ID..."
+LOGGED_IN_USER_ID=$(az ad user show --id $LOGGED_IN_UPN --query id --output tsv)
+echo "Logged in User ID: $LOGGED_IN_USER_ID"
+
 
 ############################################# Create AAD Resources #############################################
 echo "----------------------- Create AAD Resources ----------------------------"
 echo ""
+
+# Create AAD Group mod6RBACAdmin - This group will be used to assign the Azure Kubernetes Service Cluster Admin Role
+echo "Create AAD Group mod6RBACAdmin..."
+az ad group create --display-name mod6RBACAdmin --mail-nickname mod6RBACAdmin
+echo "AAD Group mod6RBACAdmin created"
+
+# Assign AAD Group mod6RBACAdmin to AADGRP_MOD6RBACADMIN_ID
+echo "Assign AAD Group mod6RBACAdmin to AADGRP_MOD6RBACADMIN_ID..."
+AADGRP_MOD6RBACADMIN_ID=$(az ad group show --group mod6RBACAdmin --query 'id' --output tsv)
+echo "AAD Group mod6RBACAdmin created with ID: $AADGRP_MOD6RBACADMIN_ID"
+
+# Retrieve AAD 'Azure Kubernetes Service Cluster Admin Role' ID
+echo "Retrieve AAD Built-in Role ID, 'Azure Kubernetes Service Cluster Admin Role'..."
+AKS_SVC_CLST_ADMIN_ROLE=$(az role definition list --query "[?roleName=='Azure Kubernetes Service Cluster Admin Role'].name" --output tsv)
+echo "AAD Built-in Role ID, 'Azure Kubernetes Service Cluster Admin Role': $AKS_SVC_CLST_ADMIN_ROLE"
+
+# Assign Logged-in User to AAD Group mod6RBACAdmin
+echo "Assign Logged-in User to AAD Group mod6RBACAdmin..."
+az ad group member add --group $AADGRP_MOD6RBACADMIN_ID --member-id $LOGGED_IN_USER_ID
+echo "Logged-in User assigned to AAD Group mod6RBACAdmin"
 
 # Create AAD Group appdev
 echo "Create AAD Group appdev..."
@@ -64,7 +93,7 @@ echo "Assign AAD Group opssre to AADGRP_OPSSRE_ID..."
 AADGRP_OPSSRE_ID=$(az ad group show --group opssre --query 'id' --output tsv)
 echo "AAD Group opssre created with ID: $AADGRP_OPSSRE_ID"
 
-# Retrieve AAD Built-in Role ID
+# Retrieve AAD 'Azure Kubernetes Service Cluster User Role' ID
 echo "Retrieve AAD Built-in Role ID, 'Azure Kubernetes Service Cluster User Role'..."
 AKS_SVC_CLST_USER_ROLE=$(az role definition list --query "[?roleName=='Azure Kubernetes Service Cluster User Role'].name" --output tsv)
 echo "AAD Built-in Role ID, 'Azure Kubernetes Service Cluster User Role': $AKS_SVC_CLST_USER_ROLE"
@@ -128,6 +157,7 @@ az deployment sub create --name $deployment_name --location $region --template-f
         aksClusterUserRoleId=$AKS_SVC_CLST_USER_ROLE \
         appDevGroupId=$AADGRP_APPDEV_ID \
         opsSREGroupId=$AADGRP_OPSSRE_ID \
+        mod6RBACAdminGroupId=$AADGRP_MOD6RBACADMIN_ID \
 
 ############################################# Create Kubernetes Resources #############################################
 echo "----------------------- Create Kubernetes Resources ----------------------------"
@@ -139,9 +169,9 @@ az aks get-credentials --resource-group $RG_NAME --name $AKS_CLUSTER_NAME --admi
 echo "AKS Admin Credentials retrieved"
 
 # Replace 'groupObjectId' in k8s/aad-aks-cluster-admin-crb-template.yaml
-echo "Replace 'groupObjectId' in k8s/aad-aks-cluster-admin-crb-template.yaml with '$CURRENT_USER_GROUP_ID'"
-sed "s/groupObjectId/$CURRENT_USER_GROUP_ID/g" k8s/aad-aks-cluster-admin-crb-template.yaml > k8s/aad-aks-cluster-admin-crb.yaml
-echo "Replaced 'groupObjectId' in k8s/aad-aks-cluster-admin-crb-template.yaml with '$CURRENT_USER_GROUP_ID' to k8s/aad-aks-cluster-admin-crb.yaml"
+echo "Replace 'groupObjectId' in k8s/aad-aks-cluster-admin-crb-template.yaml with '$AADGRP_MOD6RBACADMIN_ID'"
+sed "s/groupObjectId/$AADGRP_MOD6RBACADMIN_ID/g" k8s/aad-aks-cluster-admin-crb-template.yaml > k8s/aad-aks-cluster-admin-crb.yaml
+echo "Replaced 'groupObjectId' in k8s/aad-aks-cluster-admin-crb-template.yaml with '$AADGRP_MOD6RBACADMIN_ID' to k8s/aad-aks-cluster-admin-crb.yaml"
 
 
 # Replace 'groupObjectId' in k8s/dev-user-access-rb-template.yaml

@@ -26,6 +26,12 @@ echo "Set Account..."
 az account set --subscription $SUBSCRIPTION_ID
 echo "Account set to $SUBSCRIPTION_ID"
 
+############################################# GET DOMAIN #############################################
+LOGGED_IN_UPN=$(az ad signed-in-user show --query userPrincipalName --output tsv)
+echo 'Logged in UPN ' $LOGGED_IN_UPN
+domain=${LOGGED_IN_UPN#*@}
+echo 'Current domain: '$domain
+
 ############################################# Delete AAD Resources #############################################
 echo "----------------------- DELETE AAD Resources ----------------------------"
 echo ""
@@ -35,6 +41,11 @@ AADUSR_DEV_UPN="appdev@"$domain
 
 # Properties for opsSREUser
 AADUSR_SRE_UPN="opssre@"$domain
+
+# Delete AAD Group mod6RBACAdmin
+echo "Delete AAD Group mod6RBACAdmin..."
+az ad group delete --group mod6RBACAdmin
+echo "AAD GROUP mod6RBACAdmin deleted"
 
 # Delete AAD Group appdev
 echo "Delete AAD Group appdev..."

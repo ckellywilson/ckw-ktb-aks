@@ -14,7 +14,7 @@ module sshKey 'sshKey.bicep' = {
   scope: rg
   name: 'sshKey'
   params: {
-    sshKeyName: 'ktb-ssh-key'
+    sshKeyName: 'ktb-mod4-ssh-key'
     keyData: keyData
   }
 }

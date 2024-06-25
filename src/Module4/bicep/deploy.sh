@@ -6,12 +6,12 @@ az login --use-device-code
 
 # Generate SSH key
 echo "Generating SSH key..."
-ssh-keygen -t rsa -b 4096 -f ~/.ssh/ktb-sh -N ""
+ssh-keygen -t rsa -b 4096 -f ~/.ssh/ktb-mod4-sh -N ""
 
 # Variables
 keyData=$(cat ~/.ssh/ktb-sh.pub)
 location="eastus"
-deploymentName="ktb"
+deploymentName="ktb-mod4"
 
 
 # Deploy AKS cluster using Bicep template

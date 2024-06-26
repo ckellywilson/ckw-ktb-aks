@@ -12,10 +12,21 @@ var adminUserName = 'ktbuser'
 var nodeSize = 'Standard_D2ds_v5'
 var acrName = 'ktbmod4acr${uniqueString(resourceGroupName)}'
 var keyVaultName = 'ktbmod4kv${uniqueString(resourceGroupName)}'
+var logAnalyticsWorkspaceName = 'ktbmod4law${uniqueString(resourceGroupName)}'
+var diagnosticsName = 'ktbmod4diag${uniqueString(resourceGroupName)}'
+var appInsightsChainedName = 'ktbmod4ai-chained-${uniqueString(resourceGroupName)}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: location
+}
+
+module appInsightsChained 'ai.bicep' = {
+  scope: rg
+  name: 'appInsightsChained'
+  params: {
+    appInsightsName: appInsightsChainedName
+  }
 }
 
 module sshKey 'sshKey.bicep' = {
@@ -44,6 +55,14 @@ module acr 'acr.bicep' = {
   }
 }
 
+module law 'law.bicep' = {
+  name: 'law'
+  scope: rg
+  params: {
+    logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+  }
+}
+
 module aks 'aks.bicep' = {
   scope: rg
   name: 'aks'
@@ -53,6 +72,8 @@ module aks 'aks.bicep' = {
     nodeCount: 3
     nodeSize: nodeSize
     keyData: sshKey.outputs.sshKey
+    logAnalyticsWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceId
+    diagnosticsName: diagnosticsName
   }
 }
 

@@ -22,9 +22,10 @@ ssh-keygen -t rsa -b 4096 -f ~/.ssh/${prefix}-ktb-mod4-sh -N ""
 keyData=$(cat ~/.ssh/${prefix}-ktb-mod4-sh.pub)
 location="eastus"
 deploymentName="${prefix}-ktb-mod4"
+resourceGroupName="${prefix}-ktb-mod4-rg"
 
 # Deploy AKS cluster using Bicep template
-az deployment sub create --name $deploymentName --location $location --parameters ./main.bicepparam --parameters keyData="$keyData" --parameters adminUserId="$adminUserId" --template-file ./main.bicep
+az deployment sub create --name $deploymentName --location $location --parameters ./main.bicepparam --parameters resourceGroupName="$resourceGroupName" --parameters keyData="$keyData" --parameters adminUserId="$adminUserId" --template-file ./main.bicep
 
 # Get ACR name
 echo "Getting ACR name..."

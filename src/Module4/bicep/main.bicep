@@ -1,6 +1,7 @@
 // target scope
 targetScope = 'subscription'
 
+// parameters
 param resourceGroupName string
 param location string
 param keyData string

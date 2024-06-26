@@ -18,16 +18,13 @@ resource keyVault 'Microsoft.KeyVault/vaults@2023-07-01' = {
         tenantId: subscription().tenantId
         permissions: {
           keys: [
-            'get'
-            'list'
+            'all'
           ]
           secrets: [
-            'get'
-            'list'
+            'all'
           ]
           certificates: [
-            'get'
-            'list'
+            'all'
           ]
         }
       }

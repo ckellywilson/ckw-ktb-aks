@@ -42,4 +42,4 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-02-01' = {
   }
 }
 
-output aksClusterName string = aksCluster.name
+output aksName string = aksCluster.name

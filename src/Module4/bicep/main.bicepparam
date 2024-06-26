@@ -1,7 +1,10 @@
 using './main.bicep'
 
-param resourceGroupName = 'ktb-mod4-rg'
-param location = 'eastus'
+param resourceGroupName = ''
+param location = ''
 param keyData = 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQD'
 param adminUserId = ''
+param tags = {
+  project: 'ktb-mod4'
+}
 

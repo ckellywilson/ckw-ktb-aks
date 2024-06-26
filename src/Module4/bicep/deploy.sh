@@ -20,12 +20,19 @@ echo "Generating SSH key..."
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/${prefix}-ktb-mod4-sh -N ""
 
 keyData=$(cat ~/.ssh/${prefix}-ktb-mod4-sh.pub)
-location="eastus"
+location="westus"
 deploymentName="${prefix}-ktb-mod4"
 resourceGroupName="${prefix}-ktb-mod4-rg"
 
 # Deploy AKS cluster using Bicep template
-az deployment sub create --name $deploymentName --location $location --parameters ./main.bicepparam --parameters resourceGroupName="$resourceGroupName" --parameters keyData="$keyData" --parameters adminUserId="$adminUserId" --template-file ./main.bicep
+az deployment sub create --name $deploymentName \
+    --location $location \
+    --parameters ./main.bicepparam \
+    --parameters location="$location" \
+    --parameters resourceGroupName="$resourceGroupName" \
+    --parameters keyData="$keyData" \
+    --parameters adminUserId="$adminUserId" \
+    --template-file ./main.bicep
 
 # Get ACR name
 echo "Getting ACR name..."

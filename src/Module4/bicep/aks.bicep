@@ -9,11 +9,13 @@ param nodeSize string
 param keyData string
 param logAnalyticsWorkspaceResourceId string
 param diagnosticsName string
+param tags object = {}
 
 // AKS Cluster
 resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-03-02-preview' = {
   name: clusterName
   location: resourceGroup().location
+  tags: tags
   identity: {
     type: 'SystemAssigned'
   }

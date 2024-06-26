@@ -6,11 +6,12 @@ param resourceGroupName string
 param location string
 param keyData string
 param adminUserId string
+param tags object
 
 // variables
 var aksName = 'ktb-mod4-aks'
 var adminUserName = 'ktbuser'
-var nodeSize = 'Standard_D2ds_v5'
+var nodeSize = 'Standard_DS4_v2'
 var acrName = 'ktbmod4acr${uniqueString(resourceGroupName)}'
 var keyVaultName = 'ktbmod4kv${uniqueString(resourceGroupName)}'
 var logAnalyticsWorkspaceName = 'ktbmod4law${uniqueString(resourceGroupName)}'
@@ -20,6 +21,7 @@ var appInsightsChainedName = 'ktbmod4ai-chained-${uniqueString(resourceGroupName
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
   location: location
+  tags: tags
 }
 
 module appInsightsChained 'ai.bicep' = {
@@ -27,6 +29,7 @@ module appInsightsChained 'ai.bicep' = {
   name: 'appInsightsChained'
   params: {
     appInsightsName: appInsightsChainedName
+    tags: tags
   }
 }
 
@@ -36,6 +39,7 @@ module sshKey 'sshKey.bicep' = {
   params: {
     sshKeyName: 'ktb-mod4-ssh-key'
     keyData: keyData
+    tags: tags
   }
 }
 
@@ -45,6 +49,7 @@ module kv 'kv.bicep' = {
   params: {
     keyVaultName: keyVaultName
     adminUserId: adminUserId
+    tags: tags
   }
 }
 
@@ -53,6 +58,7 @@ module acr 'acr.bicep' = {
   name: 'acr'
   params: {
     acrName: acrName
+    tags: tags
   }
 }
 
@@ -61,6 +67,7 @@ module law 'law.bicep' = {
   scope: rg
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
+    tags: tags
   }
 }
 
@@ -75,6 +82,7 @@ module aks 'aks.bicep' = {
     keyData: sshKey.outputs.sshKey
     logAnalyticsWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceId
     diagnosticsName: diagnosticsName
+    tags: tags
   }
 }
 

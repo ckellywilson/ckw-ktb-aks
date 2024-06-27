@@ -11,7 +11,7 @@ param tags object
 // variables
 var aksName = 'ktb-mod4-aks'
 var adminUserName = 'ktbuser'
-var nodeSize = 'Standard_DS4_v2'
+var nodeSize = 'Standard_D2lds_v5'
 var acrName = 'ktbmod4acr${uniqueString(resourceGroupName)}'
 var keyVaultName = 'ktbmod4kv${uniqueString(resourceGroupName)}'
 var logAnalyticsWorkspaceName = 'ktbmod4law${uniqueString(resourceGroupName)}'

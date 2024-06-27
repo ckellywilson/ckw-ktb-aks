@@ -20,7 +20,7 @@ echo "Generating SSH key..."
 ssh-keygen -t rsa -b 4096 -f ~/.ssh/${prefix}-ktb-mod4-sh -N ""
 
 keyData=$(cat ~/.ssh/${prefix}-ktb-mod4-sh.pub)
-location="westus"
+location="centralus"
 deploymentName="${prefix}-ktb-mod4"
 resourceGroupName="${prefix}-ktb-mod4-rg"
 

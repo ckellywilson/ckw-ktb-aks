@@ -17,6 +17,7 @@ var keyVaultName = 'ktbmod4kv${uniqueString(resourceGroupName)}'
 var logAnalyticsWorkspaceName = 'ktbmod4law${uniqueString(resourceGroupName)}'
 var diagnosticsName = 'ktbmod4diag${uniqueString(resourceGroupName)}'
 var appInsightsChainedName = 'ktbmod4ai-chained-${uniqueString(resourceGroupName)}'
+var lawdcrName = 'ktbmod4lawdcr${uniqueString(resourceGroupName)}'
 
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -68,6 +69,15 @@ module law 'law.bicep' = {
   params: {
     logAnalyticsWorkspaceName: logAnalyticsWorkspaceName
     tags: tags
+  }
+}
+
+module lawdcr 'lawdcr.bicep' = {
+  scope: rg
+  name: 'lawdcr'
+  params: {
+    lawdcrName: lawdcrName
+    lawWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceId
   }
 }
 

@@ -43,9 +43,21 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-03-02-previ
         ]
       }
     }
+    addonProfiles: {
+      azurepolicy: {
+        enabled: true
+      }
+      omsagent: {
+        enabled: true
+        config: {
+          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
+          useAADAuth: 'true'
+        }
+      }
+    }
     azureMonitorProfile: {
       metrics: {
-        enabled: true
+        enabled: false
       }
       containerInsights: {
         enabled: true

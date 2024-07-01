@@ -7,8 +7,6 @@ param clusterName string
 param nodeCount int
 param nodeSize string
 param keyData string
-param logAnalyticsWorkspaceResourceId string
-param diagnosticsName string
 param tags object = {}
 
 // AKS Cluster
@@ -43,55 +41,17 @@ resource aksCluster 'Microsoft.ContainerService/managedClusters@2024-03-02-previ
         ]
       }
     }
-    addonProfiles: {
-      azurepolicy: {
-        enabled: true
-      }
-      omsagent: {
-        enabled: true
-        config: {
-          logAnalyticsWorkspaceResourceID: logAnalyticsWorkspaceResourceId
-          useAADAuth: 'true'
-        }
-      }
-    }
     azureMonitorProfile: {
       metrics: {
         enabled: false
       }
       containerInsights: {
-        enabled: true
-        logAnalyticsWorkspaceResourceId: logAnalyticsWorkspaceResourceId
+        enabled: false
       }
     }
   }
 }
 
-resource diagLogs 'Microsoft.Insights/diagnosticSettings@2021-05-01-preview' = {
-  name: diagnosticsName
-  scope: aksCluster
-  properties: {
-    workspaceId: logAnalyticsWorkspaceResourceId
-    logs: [
-      {
-        category: 'kube-apiserver'
-        enabled: true
-      }
-      {
-        category: 'kube-controller-manager'
-        enabled: true
-      }
-      {
-        category: 'kube-scheduler'
-        enabled: true
-      }
-      {
-        category: 'cluster-autoscaler'
-        enabled: true
-      }
-    ]
-  }
-}
-
+// Output
 output aksName string = aksCluster.name
 output aksResourceId string = aksCluster.id

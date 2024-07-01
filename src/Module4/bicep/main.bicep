@@ -15,9 +15,8 @@ var nodeSize = 'Standard_D2lds_v5'
 var acrName = 'ktbmod4acr${uniqueString(resourceGroupName)}'
 var keyVaultName = 'ktbmod4kv${uniqueString(resourceGroupName)}'
 var logAnalyticsWorkspaceName = 'ktbmod4law${uniqueString(resourceGroupName)}'
-var diagnosticsName = 'ktbmod4diag${uniqueString(resourceGroupName)}'
 var appInsightsChainedName = 'ktbmod4ai-chained-${uniqueString(resourceGroupName)}'
-var lawdcrName = 'ktbmod4lawdcr${uniqueString(resourceGroupName)}'
+var dataCollectionInterval = '1m'
 
 resource rg 'Microsoft.Resources/resourceGroups@2021-04-01' = {
   name: resourceGroupName
@@ -72,15 +71,6 @@ module law 'law.bicep' = {
   }
 }
 
-module lawdcr 'lawdcr.bicep' = {
-  scope: rg
-  name: 'lawdcr'
-  params: {
-    lawdcrName: lawdcrName
-    lawWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceId
-  }
-}
-
 module aks 'aks.bicep' = {
   scope: rg
   name: 'aks'
@@ -90,9 +80,39 @@ module aks 'aks.bicep' = {
     nodeCount: 3
     nodeSize: nodeSize
     keyData: sshKey.outputs.sshKey
-    logAnalyticsWorkspaceResourceId: law.outputs.logAnalyticsWorkspaceId
-    diagnosticsName: diagnosticsName
     tags: tags
+  }
+}
+
+module aks_monitor 'aks-monitor.bicep' = {
+  scope: rg
+  name: 'aks-monitor'
+  params: {
+    aksResourceId: aks.outputs.aksResourceId
+    aksResourceLocation: location
+    resourceTagValues: tags
+    workspaceResourceId: law.outputs.logAnalyticsWorkspaceId
+    dataCollectionInterval: dataCollectionInterval
+    enableContainerLogV2: true
+    workspaceRegion: location
+    namespaceFilteringModeForDataCollection: 'Include'
+    namespacesForDataCollection: [
+      'kube-system'
+    ]
+    streams: [
+      'Microsoft-ContainerLog'
+      'Microsoft-ContainerLogV2'
+      'Microsoft-KubeEvents'
+      'Microsoft-KubePodInventory'
+      'Microsoft-KubeNodeInventory'
+      'Microsoft-KubePVInventory'
+      'Microsoft-KubeServices'
+      'Microsoft-KubeMonAgentEvents'
+      'Microsoft-InsightsMetrics'
+      'Microsoft-ContainerInventory'
+      'Microsoft-ContainerNodeInventory'
+      'Microsoft-Perf'
+    ]
   }
 }
 

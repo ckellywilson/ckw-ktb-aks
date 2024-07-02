@@ -81,6 +81,7 @@ module aks 'aks.bicep' = {
     nodeSize: nodeSize
     keyData: sshKey.outputs.sshKey
     tags: tags
+    logAnalyticsWorkspaceId: law.outputs.logAnalyticsWorkspaceId
   }
 }
 
